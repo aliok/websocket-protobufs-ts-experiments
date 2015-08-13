@@ -1,0 +1,9 @@
+{
+  "name": "websocket-protobufs-ts-experiments-client",
+  "version": "1.0.0-SNAPSHOT",
+  "devDependencies": {
+    "browser-sync": "^2.6.4",
+    "gulp": "^3.8.11",
+    "gulp-changed": "^1.2.1"
+  }
+}

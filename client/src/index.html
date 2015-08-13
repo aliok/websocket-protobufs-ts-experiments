@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="lib/jquery/dist/jquery.js"></script>
+
+    <!--only required when you need int64(=long) support -->
+    <!--order is important-->
+    <script src="lib/long/dist/Long.js"></script>
+    <script src="lib/bytebuffer/dist/ByteBufferAB.js"></script>
+    <script src="lib/protobuf/dist/ProtoBuf.js"></script>
+
+
+    <script type="text/javascript" src="application.js"></script>
+    <style>
+    p {line-height: 18px;}
+    div {width: 500px; margin-left: auto; margin-right: auto;}
+    #content {padding: 5px; background: #ddd; border-radius: 5px; border: 1px solid #CCC; margin-top: 10px;}
+    #status {width: 88px; display: block; float: left; margin-top: 15px;}
+    </style>
+</head>
+<body>
+    <div id="content"></div>
+    <div>
+        <button id="orderPizza">Order pizza</button>
+        <button id="playVideoGame">Play video game</button>
+        <button id="drinkTea">Drink tea</button>
+    </div>
+</body>
+</html>

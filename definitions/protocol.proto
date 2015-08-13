@@ -1,0 +1,62 @@
+package tr.com.aliok.wpteb.protocol;
+
+option optimize_for = SPEED;
+
+message CommandRequest {
+
+  // Identifies which field is filled in.
+  // see https://developers.google.com/protocol-buffers/docs/techniques?csw=1#union
+  required ActionType actionType = 1;
+
+  // One of the following will be filled in.
+  optional OrderPizzaAction orderPizzaAction = 2;
+  optional PlayVideoGameAction playVideoGameAction = 3;
+  optional DrinkTeaAction drinkTeaAction = 4;
+}
+
+message CommandAuthorization{
+
+  // same as above
+  required ActionType actionType = 1;
+
+  required string userName = 2;
+  required int64 time = 3;
+
+  optional UserJoinAction userJoinAction = 4;
+  optional UserLeaveAction userLeaveAction = 5;
+  optional OrderPizzaAction orderPizzaAction = 6;
+  optional PlayVideoGameAction playVideoGameAction = 7;
+  optional DrinkTeaAction drinkTeaAction = 8;
+
+}
+
+enum ActionType {
+  USER_JOIN = 1;
+  USER_LEAVE = 2;
+  ORDER_PIZZA = 3;
+  PLAY_VIDEO_GAME = 4;
+  DRINK_TEA = 5;
+}
+
+message UserJoinAction{
+    required int32 userCount = 1;
+}
+
+message UserLeaveAction{
+    required int32 userCount = 1;
+}
+
+message OrderPizzaAction{
+    required string pizzaName = 1;
+    required int32 count = 2;
+}
+
+message PlayVideoGameAction{
+    required string videoGameName = 1;
+    required int32 players = 2;
+}
+
+message DrinkTeaAction{
+    required string region = 1;
+    required int32 temperature = 2;
+}

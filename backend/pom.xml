@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>tr.com.aliok</groupId>
+    <artifactId>websocket-protobufs-ts-experiments-backend</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <packaging>war</packaging>
+
+
+    <name>websocket-protobufs-ts-experiments-backend</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+            <version>${javax.websocket-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <compilerVersion>${target-jdk-version}</compilerVersion>
+                    <source>${target-jdk-version}</source>
+                    <target>${target-jdk-version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>${jetty9.version}</version>
+                <configuration>
+                    <webAppSourceDirectory>${project.build.directory}/${project.name}</webAppSourceDirectory>
+                    <scanIntervalSeconds>1</scanIntervalSeconds>
+                    <webAppConfig>
+                        <contextPath>/</contextPath>
+                    </webAppConfig>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/protobuf</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${maven-antrun-plugin.version}</version>
+                <executions>
+                    <!--create Protocol Buffers classes for the definitions. Created stuff is put into /target/generated-sources-->
+                    <execution>
+                        <id>compile-protoc</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <tasks>
+                                <!--protoc cannot work with relative paths.-->
+                                <!--see https://github.com/google/protobuf/blob/bfbf35da9e3d97275ddf718f1e34e051d24f3be2/src/google/protobuf/compiler/command_line_interface.cc#L912-->
+                                <!--so, resolve the relative path to ../definitions folder.-->
+                                <property name="definitions.folder.path" location="${project.basedir}/../definitions"/>
+                                <!--target/generated-sources folder is used in Maven lifecycle by default.-->
+                                <!--see http://stackoverflow.com/questions/21340508/how-can-i-organize-source-generation-in-maven-->
+                                <property name="target.folder" location="${project.build.directory}/generated-sources/protobuf"/>
+                                <!--suppress MavenModelInspection -->
+                                <echo level="info">
+                                    Generating Protocol Buffers classes from definition files in
+                                    ${definitions.folder.path}
+                                    into
+                                    ${target.folder}
+                                </echo>
+                                <!--suppress MavenModelInspection -->
+                                <mkdir dir="${target.folder}"/>
+                                <path id="proto.path">
+                                    <!--suppress MavenModelInspection -->
+                                    <fileset dir="${definitions.folder.path}">
+                                        <include name="**/*.proto"/>
+                                    </fileset>
+                                </path>
+                                <pathconvert pathsep=" " property="proto.files" refid="proto.path"/>
+                                <exec executable="protoc" failonerror="true">
+                                    <!--suppress MavenModelInspection -->
+                                    <arg value="--java_out=${target.folder}"/>
+                                    <!--suppress MavenModelInspection -->
+                                    <arg value="-I${definitions.folder.path}"/>
+                                    <!--suppress MavenModelInspection -->
+                                    <arg line="${proto.files}"/>
+                                </exec>
+                                <!--suppress MavenModelInspection -->
+                                <echo level="info">
+                                    Processing files: ${proto.files}
+                                </echo>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <properties>
+        <!--project properties-->
+        <target-jdk-version>1.7</target-jdk-version>
+
+        <!--dependencies-->
+        <javax.websocket-api.version>1.0</javax.websocket-api.version>
+        <guava.version>18.0</guava.version>
+        <protobuf.version>2.6.1</protobuf.version>
+        <slf4j.version>1.6.4</slf4j.version>
+
+        <!--plugins-->
+        <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+        <maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
+        <jetty9.version>9.2.9.v20150224</jetty9.version>
+    </properties>
+
+</project>
