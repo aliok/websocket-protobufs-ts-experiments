@@ -2,6 +2,12 @@
 
 #### Instructions
 
+You need protobufjs and proto2typescript installed globally:
+
+    npm install protobufjs -g
+    npm install proto2typescript -g
+
+
 To start server, issue
 
     cd backend
@@ -14,6 +20,8 @@ To start client, issue
 
 
 #### Notes
+
+* Typescript definitions are created during Gulp build/run tasks using Protobuf.js and Proto2Typescript.
 
 * A version with no Typescript (regular Javascript) is at <https://github.com/aliok/websocket-protobufs-experiments>
 * Protocol buffer definitions are in `definitions` folder. Both backend and client uses it from there.

@@ -22,3 +22,4 @@ backend/target
 # Client
 client/node_modules
 client/target
+client/.temp-proto-json
