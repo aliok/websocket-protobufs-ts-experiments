@@ -16,6 +16,8 @@ To start server, issue
 To start client, issue
 
     cd client
+    npm install
+    bower install
     gulp run
 
 

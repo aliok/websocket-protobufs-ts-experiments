@@ -7,6 +7,12 @@
   "installed": {
     "jquery/jquery.d.ts": {
       "commit": "e95958ac847d9a343bdc8d7cbc796a5f6da29f71"
+    },
+    "node/node.d.ts": {
+      "commit": "5109e1269d6ab8e8e73b1a5e85d8ceb836d3099f"
+    },
+    "protobufjs/protobufjs.d.ts": {
+      "commit": "5109e1269d6ab8e8e73b1a5e85d8ceb836d3099f"
     }
   }
 }

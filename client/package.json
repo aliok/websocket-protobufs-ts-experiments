@@ -7,6 +7,7 @@
     "gulp": "^3.8.11",
     "gulp-changed": "^1.2.1",
     "gulp-exec": "^2.1.1",
-    "gulp-rename": "^1.2.2"
+    "gulp-rename": "^1.2.2",
+    "gulp-typescript": "^2.8.0"
   }
 }

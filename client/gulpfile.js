@@ -1,15 +1,14 @@
 var gulp = require('gulp');
 var changed = require('gulp-changed');
-
 var del = require('del');
-
 var exec = require('gulp-exec');
 var rename = require('gulp-rename');
-
 var browserSync = require('browser-sync');
+var ts = require('gulp-typescript');
 
 var paths = {
-    src: './src/**/*.*',
+    static: ['./src/**/*.html'],
+    ts: ['./src/**/*.ts', './typings/**/*.d.ts', './proto-typings/**/*.d.ts'],
     defs: '../definitions/**/*.proto'
 };
 
@@ -34,9 +33,9 @@ gulp.task('browser-sync', function () {
 });
 
 // this task is meant to run in a full build
-gulp.task('src-copy-all', function () {
+gulp.task('static-copy-all', function () {
     gulp
-        .src(paths.src, {base: './src'})
+        .src(paths.static, {base: './src'})
         .pipe(gulp.dest('target'));
 });
 
@@ -48,9 +47,9 @@ gulp.task('defs-copy-all', function () {
 });
 
 // this task is meant to run during coding
-gulp.task('src-copy-changed', function () {
+gulp.task('static-copy-changed', function () {
     gulp
-        .src(paths.src, {base: './src'})
+        .src(paths.static, {base: './src'})
         .pipe(changed('target'))
         .pipe(gulp.dest('target'));
 });
@@ -61,6 +60,23 @@ gulp.task('defs-copy-changed', function () {
         .src(paths.defs, {base: '../definitions'})
         .pipe(changed('target'))
         .pipe(gulp.dest('target'));
+});
+
+// this task is meant to run in a full build and during coding
+// as TS operation is a compilation operation, we need to include all resources; not only the ones that changed.
+gulp.task('ts', function () {
+    var tsResult = gulp.src(paths.ts)
+        .pipe(ts({
+            out: 'application.js',
+            declarationFiles: false,
+            noExternalResolve: true
+        }));
+
+    // we don't generate dts for our files
+    // following requires this : var merge = require('merge2');
+    //return merge([tsResult.dts.pipe(gulp.dest('typings')), tsResult.js.pipe(gulp.dest('www'))]);
+
+    return tsResult.js.pipe(gulp.dest('target'));
 });
 
 // generate JSON files for proto files. output is written into temporary '.temp-proto-json' folder.
@@ -112,12 +128,14 @@ gulp.task('generate-tsd-for-protos', ['generate-json-for-protos'], function () {
 });
 
 gulp.task('watch', function () {
-    gulp.watch(paths.src, ['src-copy-changed']);
+    gulp.watch(paths.src, ['static-copy-changed']);
+    gulp.watch(paths.ts, ['ts']);
     gulp.watch(paths.defs, ['defs-copy-changed', 'generate-tsd-for-protos']);
 });
 
 gulp.task('build', [
-    'src-copy-all',
+    'static-copy-all',
     'defs-copy-all',
-    'generate-tsd-for-protos'
+    'generate-tsd-for-protos',
+    'ts'
 ]);

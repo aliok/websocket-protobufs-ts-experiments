@@ -1,31 +1,43 @@
+/// <reference path="../typings/tsd.d.ts" />
+/// <reference path="../proto-typings/protocol.proto.d.ts" />
+
+import CommandAuthorization = tr.com.aliok.wpteb.protocol.CommandAuthorization;
+import CommandRequest = tr.com.aliok.wpteb.protocol.CommandRequest;
+import ActionType = tr.com.aliok.wpteb.protocol.ActionType;
+import UserJoinAction = tr.com.aliok.wpteb.protocol.UserJoinAction;
+import UserLeaveAction = tr.com.aliok.wpteb.protocol.UserLeaveAction;
+import OrderPizzaAction = tr.com.aliok.wpteb.protocol.OrderPizzaAction;
+import PlayVideoGameAction = tr.com.aliok.wpteb.protocol.PlayVideoGameAction;
+import DrinkTeaAction = tr.com.aliok.wpteb.protocol.DrinkTeaAction;
+
 $(function () {
-    "use strict";
 
-    var content = $('#content');
-    var connection = null;
+    var content:JQuery = $('#content');
+    var connection:WebSocket = null;
 
-    //TODO: convert to async
-    var protocol = dcodeIO.ProtoBuf.loadProtoFile("./protocol.proto");
+    var dcodeIO = <any>window['dcodeIO'];
+    var ProtoBuf = dcodeIO.ProtoBuf;
+
+    var protocol = ProtoBuf.loadProtoFile("./protocol.proto");
 
     //TODO: is it necessary to build everything one by one?
-    var CommandAuthorization = protocol.build("tr.com.aliok.wpteb.protocol.CommandAuthorization");
-    var CommandRequest = protocol.build("tr.com.aliok.wpteb.protocol.CommandRequest");
-    var ActionType = protocol.build("tr.com.aliok.wpteb.protocol.ActionType");
-    var UserJoinAction = protocol.build("tr.com.aliok.wpteb.protocol.UserJoinAction");
-    var UserLeaveAction = protocol.build("tr.com.aliok.wpteb.protocol.UserLeaveAction");
-    var OrderPizzaAction = protocol.build("tr.com.aliok.wpteb.protocol.OrderPizzaAction");
-    var PlayVideoGameAction = protocol.build("tr.com.aliok.wpteb.protocol.PlayVideoGameAction");
-    var DrinkTeaAction = protocol.build("tr.com.aliok.wpteb.protocol.DrinkTeaAction");
+    var CommandAuthorizationBuilder:tr.com.aliok.wpteb.protocol.CommandAuthorizationBuilder = protocol.build("tr.com.aliok.wpteb.protocol.CommandAuthorization");
+    var CommandRequestBuilder:tr.com.aliok.wpteb.protocol.CommandRequestBuilder = protocol.build("tr.com.aliok.wpteb.protocol.CommandRequest");
+    var UserJoinActionBuilder:tr.com.aliok.wpteb.protocol.UserJoinActionBuilder = protocol.build("tr.com.aliok.wpteb.protocol.UserJoinAction");
+    var UserLeaveActionBuilder:tr.com.aliok.wpteb.protocol.UserLeaveActionBuilder = protocol.build("tr.com.aliok.wpteb.protocol.UserLeaveAction");
+    var OrderPizzaActionBuilder:tr.com.aliok.wpteb.protocol.OrderPizzaActionBuilder = protocol.build("tr.com.aliok.wpteb.protocol.OrderPizzaAction");
+    var PlayVideoGameActionBuilder:tr.com.aliok.wpteb.protocol.PlayVideoGameActionBuilder = protocol.build("tr.com.aliok.wpteb.protocol.PlayVideoGameAction");
+    var DrinkTeaActionBuilder:tr.com.aliok.wpteb.protocol.DrinkTeaActionBuilder = protocol.build("tr.com.aliok.wpteb.protocol.DrinkTeaAction");
 
     connection = new WebSocket("ws://" + window.location.hostname + ":8080/backend");
     connection.binaryType = 'arraybuffer';
 
     $(document).ready(function () {
         $('#orderPizza').click(function () {
-            var commandRequest = new CommandRequest();
+            var commandRequest:CommandRequest = new CommandRequestBuilder();
             commandRequest.setActionType(ActionType.ORDER_PIZZA);
 
-            var orderPizzaAction = new OrderPizzaAction();
+            var orderPizzaAction:OrderPizzaAction = new OrderPizzaActionBuilder();
             orderPizzaAction.setPizzaName(['Vegetariana', 'Margherita', 'Funghi'][Math.floor(Math.random() * 3)]);
             orderPizzaAction.setCount(Math.floor(Math.random() * 10) + 1);
 
@@ -35,10 +47,10 @@ $(function () {
         });
 
         $('#playVideoGame').click(function () {
-            var commandRequest = new CommandRequest();
+            var commandRequest = new CommandRequestBuilder();
             commandRequest.setActionType(ActionType.PLAY_VIDEO_GAME);
 
-            var playVideoGameAction = new PlayVideoGameAction();
+            var playVideoGameAction = new PlayVideoGameActionBuilder();
             playVideoGameAction.setVideoGameName(['WOW', 'AOE II: AOK', 'Candy Crap'][Math.floor(Math.random() * 3)]);
             playVideoGameAction.setPlayers(Math.floor(Math.random() * 10) + 1);
 
@@ -48,10 +60,10 @@ $(function () {
         });
 
         $('#drinkTea').click(function () {
-            var commandRequest = new CommandRequest();
+            var commandRequest = new CommandRequestBuilder();
             commandRequest.setActionType(ActionType.DRINK_TEA);
 
-            var drinkTeaAction = new DrinkTeaAction();
+            var drinkTeaAction = new DrinkTeaActionBuilder();
             drinkTeaAction.setRegion(['Turkish Black Sea', 'India', 'Africa'][Math.floor(Math.random() * 3)]);
             drinkTeaAction.setTemperature(Math.floor(Math.random() * 80) + 1);
 
@@ -62,14 +74,14 @@ $(function () {
     });
 
     // Prevent ESC to kill the connection from Firefox.
-    jQuery(window).keypress(function (e) {
+    $(window).keypress(function (e) {
         if (e.keyCode === 27) {
             e.preventDefault();
         }
     });
 
     connection.onopen = function (event) {
-        content.html($('<p>', {text: 'Websocket connected'}));
+        content.html("<p>Websocket connected</p>");
     };
 
     connection.onmessage = function (event) {
@@ -86,19 +98,14 @@ $(function () {
     };
 
     connection.onclose = function (event) {
-        content.html($('<p>', {
-            text: 'Connection closed'
-        }));
+        content.html("<p>Connection closed</p>");
     };
 
     connection.onerror = function (event) {
-        content.html($('<p>', {
-            text: 'Sorry, but there\'s some problem with your '
-            + 'socket or the server is down'
-        }));
+        content.html("<p>Sorry, but there's some problem with your socket or the server is down</p>");
     };
 
-    var sendMessage = function (commandRequest) {
+    var sendMessage = function (commandRequest:CommandRequest) {
         console.log('sendMessage', commandRequest);
         if (connection.readyState === WebSocket.OPEN) {
             connection.send(commandRequest.toArrayBuffer());
@@ -109,16 +116,16 @@ $(function () {
     };
 
     function handleMessage(data) {
-        var commandAuthorization = CommandAuthorization.decode(data);
+        var commandAuthorization:CommandAuthorization = CommandAuthorizationBuilder.decode(data);
 
         console.log("Received message.");
-        console.log(commandAuthorization.encodeJSON());
+        console.log(commandAuthorization.toString);
 
         var user = commandAuthorization.userName;
         // time received from proto buf is a "long.js" long
         // let's convert it to nearest number approximation
         // following will fail in year 2038
-        var timeMsec = commandAuthorization.time.toNumber();
+        var timeMsec = (<any>commandAuthorization.time).toNumber();
         var date = new Date(timeMsec);
 
         switch (commandAuthorization.actionType) {
@@ -157,7 +164,7 @@ $(function () {
             }
             default:
             {
-                showMessage(user, "Unknown action with type " + commandAuthorization.actionType + ".");
+                showMessage(user, "Unknown action with type " + commandAuthorization.actionType + ".", "red", new Date());
             }
         }
     }
